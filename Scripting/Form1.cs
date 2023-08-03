@@ -27,6 +27,10 @@ namespace Scripting
             MyAccess myAccess = new MyAccess();
             int retValue = myAccess.TestMethod(15);
             Debug.WriteLine($"result={retValue}");
+#else
+            int vGet = TestLib.MyAccess.GetValue();
+            Debug.WriteLine($"direct get = {vGet}");
+            TestLib.MyAccess.SetValue(vGet + 5);
 #endif
         }
     }
