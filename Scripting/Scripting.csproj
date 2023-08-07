@@ -17,4 +17,10 @@
     <ProjectReference Include="..\TestLib\TestLib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Form2.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using System.Diagnostics;
 //using TestLib;
+//ÇÑ±ÛÀÌ¶û english¶û
 
 namespace Scripting
 {
@@ -39,23 +40,12 @@ namespace Scripting
     {
         public static void StartScript()
         {
+            // TODO load source file
+            // select source file from the source list
             //string path = @"TestScript1.cs";
 
-            //// Open the file to read from.
+            // open the file and display into textview
             //string readText = File.ReadAllText(path);
-
-            //string readText = @"
-            //    namespace SimpleScripts
-            //    {
-            //        public class MyScript : ScriptType.IScriptType1
-            //        {
-            //            public int LibFunc1(int value)
-            //            {
-            //                return 123;
-            //            }
-            //        }
-            //    }
-            //";
             string readText = @"
                 using TestLib;
                 namespace SimpleScripts
@@ -127,6 +117,7 @@ namespace Scripting
             Debug.WriteLine("Parsing the code into the SyntaxTree");
             SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
 
+            // TODO 
             string assemblyName = Path.GetRandomFileName();
             var refPaths = new[] {
                 typeof(System.Object).GetTypeInfo().Assembly.Location,
