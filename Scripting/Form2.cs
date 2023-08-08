@@ -1,218 +1,107 @@
 using System.Reflection;
-using System.Runtime.Loader;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Emit;
 using System.Diagnostics;
-using System.Linq;
-//using TestLib;
-//ÇÑ±ÛÀÌ¶û english¶û
 
 namespace Scripting
 {
     public partial class Form2 : Form
     {
+        private Scriptor Runner = new Scriptor();
+
         public Form2()
         {
             InitializeComponent();
-        }
 
-        private void Open_Click(object sender, EventArgs e)
-        {
-            // TODO load source file
-            // select source file from the source list
-            //string path = @"TestScript1.cs";
-            CodePath.Text = Path.Combine(Application.StartupPath, @"TestScript1.cs");
-
-            // open the file and display into textview
-            //string readText = File.ReadAllText(path);
-            string readText = @"
-                using TestLib;
-                namespace FcpScripts
-                {
-                    public class TestScript1
-                    {
-                        public bool SetUp()
-                        {
-                        }
-
-                        public bool RunTest(int value)
-                        {
-                            MyAccess obj = new MyAccess();
-                            return obj.TestMethod(value);
-                        }
-
-                        public bool TearDown()
-                        {
-                        }
-                    }
-                }
-            ";
-
-            CodeView.Text = readText;
-        }
-
-        private void Build_Click(object sender, EventArgs e)
-        {
-            Scriptor.CompileCode(CodeView.Text, Path.GetFileNameWithoutExtension(CodePath.Text));
-        }
-
-        // call directly for testing
-        private void Run_Click(object sender, EventArgs e)
-        {
-            // find file and load to assembly
-            string className = Path.GetFileNameWithoutExtension(CodePath.Text);
-            string asmFile =  className + @".dll";
-
-            //Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(ms);
-            Assembly assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(asmFile);
-
-            // run method of class in assembly
-            Scriptor.RunTestCase(assembly, className);
-        }
-
-        private void Test_Click(object sender, EventArgs e)
-        {
-            int vGet = TestLib.MyAccess.GetValue();
-            Debug.WriteLine($"direct get = {vGet}");
-            TestLib.MyAccess.SetValue(vGet + 5);
+            Runner.SrcPath = Path.Combine(Application.StartupPath, "asmSrc");
+            Runner.DllPath = Path.Combine(Application.StartupPath, "asmDll");
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            // TODO list up assembly source files
-            // compile "./asmSrc/*.cs" to "./asmDll/*.dll"
+            // check directory exists
+            if (!Directory.Exists(Runner.SrcPath))
+                Directory.CreateDirectory(Runner.SrcPath);
+            if (!Directory.Exists(Runner.DllPath))
+                Directory.CreateDirectory(Runner.DllPath);
 
-            //DirectoryInfo d = new DirectoryInfo(Path.Combine(Application.StartupPath, "asmSrc"));
-            //string[] sourceFiles = d.EnumerateFiles(@"*.cs", SearchOption.AllDirectories)
-            //    .Select(a => a.FullName).ToArray();
-        }
-    }
-
-    public class Scriptor
-    {
-        // using Roslyn(CodeAnalysis.CSharp)
-        public static bool CompileCode(string code, string fileName)
-        {
-            // parsing
-            Debug.WriteLine("Parsing the code into the SyntaxTree");
-            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
-
-            // set referencing packages
-            // get .net runtime path
-            string runtimeDir = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
-            Debug.WriteLine($"runtime by interop -> {runtimeDir}");
-            var refPaths = new[] {
-                // add assembly path by TypeInfo(QualifiedClassName)
-                typeof(System.Object).GetTypeInfo().Assembly.Location,
-                typeof(Console).GetTypeInfo().Assembly.Location,
-                // add assembly path based .NETCore path
-                Path.Combine(runtimeDir, "System.Runtime.dll"),
-                // add my library file path
-                Path.Combine(Environment.CurrentDirectory, "TestLib.dll")
-            };
-            Debug.WriteLine("Adding the following references");
-            foreach (var r in refPaths)
-                Debug.WriteLine(r);
-
-            // create metadata from referencing packages
-            MetadataReference[] references = refPaths.Select(r => MetadataReference.CreateFromFile(r)).ToArray();
-
-            // complile the code with syntaxTreee, meta-refs, compile-options
-            Debug.WriteLine("Compiling ...");
-            string asmName = String.IsNullOrEmpty(fileName) ? Path.GetRandomFileName() : fileName;
-            CSharpCompilation compilation = CSharpCompilation.Create(
-                asmName,
-                syntaxTrees: new[] { syntaxTree },
-                references: references,
-                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-            using (var ms = new MemoryStream())
+            // list up assembly source files
+            // "$AppRoot/asmSrc/*.cs"
+            DirectoryInfo d = new(Runner.SrcPath);
+            string[] sourceFiles = d.EnumerateFiles(@"*.cs", SearchOption.AllDirectories)
+                .Select(a => a.Name).ToArray();
+            ScriptList.Items.AddRange(sourceFiles);
+            if (sourceFiles.Length > 0)
             {
-                EmitResult result = compilation.Emit(ms);
-
-                if (!result.Success)
-                {
-                    Debug.WriteLine("Compilation failed!");
-                    IEnumerable<Diagnostic> failures = result.Diagnostics.Where(diagnostic =>
-                        diagnostic.IsWarningAsError ||
-                        diagnostic.Severity == DiagnosticSeverity.Error);
-
-                    foreach (Diagnostic diagnostic in failures)
-                    {
-                        Debug.WriteLine("\t{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
-                    }
-                    return false;
-                }
-
-                // compile ok --> save to assembly file
-                //
-                // load to assembly
-                Debug.WriteLine("Compilation successful! Now instantiating and executing the code ...");
-                ms.Seek(0, SeekOrigin.Begin);
-
-                Assembly assembly = AssemblyLoadContext.Default.LoadFromStream(ms);
+                ScriptList.SelectedIndex = 0;
             }
-
-            return true;
         }
 
-        public static void RunTestCase(Assembly assembly, string className)
+        private void Open_Click(object sender, EventArgs e)
         {
-            // check assembly
-            if (assembly == null)
-                return;
-
-            // get class type in assembly
-            string qfyName = "FcpScripts." + className;
-            var type = assembly.GetType(qfyName);
-            if (type == null)
+            // load source file
+            if (ScriptList.SelectedIndex < 0)
             {
+                CodeName.Text = "";
+                CodeView.Text = "";
                 return;
             }
 
-            // get method info for invoking
-            var instance = assembly.CreateInstance(qfyName);
-            var setUp = type.GetMember("SetUp").First() as MethodInfo;
-            if (setUp != null)
+            // select source file from the source list
+            //string fileName = @"TestScript1.cs";
+            string? fileName = ScriptList.SelectedItem.ToString();
+            if (fileName == null)
+                return;
+
+            CodeName.Text = Path.GetFileNameWithoutExtension(fileName);
+            string filePath = Path.Combine(Runner.SrcPath, fileName);
+
+            // open the file and display into textview
+            string srcCode = File.ReadAllText(filePath);
+            CodeView.Text = srcCode;
+        }
+
+        private void Build_Click(object sender, EventArgs e)
+        {
+            // "$AppRoot/asmSrc/*.cs" --> "$AppRoot/asmDll/*.dll"
+            Runner.Prepare(CodeView.Text, CodeName.Text);
+            Runner.Compile(CodeName.Text);
+        }
+
+        private void Run_Click(object sender, EventArgs e)
+        {
+            // load assembly from file
+            Assembly? assembly = Runner.LoadFile(CodeName.Text);
+            if (assembly != null)
             {
-                setUp.Invoke(instance, null);
-            }
-            // TODO run all test cases
-            //MethodInfo[] tests = type.GetMembers().Where(p => p.Name.StartsWith("test")).ToArray<MethodInfo>();
-            //for (var tc in tests)
-            //{
-            //    tc.Invoke(instance, null);
-            //}
-            var tearDown = type.GetMember("TearDown").First() as MethodInfo;
-            if (tearDown != null)
-            {
-                tearDown.Invoke(instance, null);
+                // run method of class in assembly
+                Runner.RunScript(assembly, CodeName.Text);
+                //Scriptor.RunTestCase(assembly, className);
             }
         }
 
-        //public static void RunInterface(Assembly assembly)
-        //{
-        //    foreach (Type type in assembly.GetExportedTypes())
-        //    {
-        //        foreach (Type iface in type.GetInterfaces())
-        //        {
-        //            if (iface == typeof(ScriptType.IScriptType1))
-        //            {
-        //                ConstructorInfo constructor = type.GetConstructor(System.Type.EmptyTypes);
-        //                if (constructor != null && constructor.IsPublic)
-        //                {
-        //                    ScriptType.IScriptType1 scriptObject = constructor.Invoke(null) as ScriptType.IScriptType1;
-        //                    if (scriptObject != null)
-        //                    {
-        //                        int retVal = scriptObject.LibFunc1(50);
-        //                        Debug.WriteLine($"LibFunc1 result={retVal}");
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+        private void BuildRun_Click(object sender, EventArgs e)
+        {
+            Runner.Prepare(CodeView.Text);
+            Assembly? asm = Runner.Compile();
+            if (asm != null)
+            {
+                Runner.RunScript(asm, CodeName.Text);
+            }
+        }
+
+        // call directly for testing
+        private void Test_Click(object sender, EventArgs e)
+        {
+            TestLib.MyAccess myAccess = new TestLib.MyAccess();
+            int vGet = myAccess.GetValue();
+            Debug.WriteLine($"direct get = {vGet}");
+            myAccess.SetValue(vGet + 5);
+        }
+
+        private void Save_Click(object sender, EventArgs e)
+        {
+            // overwriting source file
+        }
     }
 }
 
