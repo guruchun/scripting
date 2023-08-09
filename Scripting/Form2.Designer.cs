@@ -39,6 +39,8 @@
             Save = new Button();
             label1 = new Label();
             label2 = new Label();
+            label3 = new Label();
+            label4 = new Label();
             SuspendLayout();
             // 
             // CodeView
@@ -52,7 +54,7 @@
             // 
             // Build
             // 
-            Build.Location = new Point(592, 107);
+            Build.Location = new Point(592, 179);
             Build.Name = "Build";
             Build.Size = new Size(140, 23);
             Build.TabIndex = 1;
@@ -62,7 +64,7 @@
             // 
             // Run
             // 
-            Run.Location = new Point(592, 136);
+            Run.Location = new Point(592, 208);
             Run.Name = "Run";
             Run.Size = new Size(140, 23);
             Run.TabIndex = 1;
@@ -80,10 +82,10 @@
             Open.UseVisualStyleBackColor = true;
             Open.Click += Open_Click;
             // 
-            // CodePath
+            // CodeName
             // 
             CodeName.Location = new Point(392, 47);
-            CodeName.Name = "CodePath";
+            CodeName.Name = "CodeName";
             CodeName.Size = new Size(169, 23);
             CodeName.TabIndex = 3;
             // 
@@ -99,7 +101,7 @@
             // 
             // BuildRun
             // 
-            BuildRun.Location = new Point(592, 339);
+            BuildRun.Location = new Point(592, 113);
             BuildRun.Name = "BuildRun";
             BuildRun.Size = new Size(140, 23);
             BuildRun.TabIndex = 5;
@@ -138,17 +140,37 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(592, 89);
+            label2.Location = new Point(592, 161);
             label2.Name = "label2";
             label2.Size = new Size(94, 15);
             label2.TabIndex = 9;
             label2.Text = "Compiled Script";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(592, 95);
+            label3.Name = "label3";
+            label3.Size = new Size(126, 15);
+            label3.TabIndex = 10;
+            label3.Text = "Compiling in Memory";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(592, 366);
+            label4.Name = "label4";
+            label4.Size = new Size(158, 15);
+            label4.TabIndex = 9;
+            label4.Text = "Call the methods for testing";
             // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(label3);
+            Controls.Add(label4);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(Save);
@@ -161,7 +183,7 @@
             Controls.Add(Build);
             Controls.Add(CodeView);
             Name = "Form2";
-            Text = "Form1";
+            Text = "Form2";
             Load += Form2_Load;
             ResumeLayout(false);
             PerformLayout();
@@ -180,5 +202,7 @@
         private Button Save;
         private Label label1;
         private Label label2;
+        private Label label3;
+        private Label label4;
     }
 }

@@ -34,7 +34,7 @@ namespace Scripting
                 // add assembly path by TypeInfo(QualifiedClassName)
                 typeof(System.Object).GetTypeInfo().Assembly.Location,
                 typeof(Console).GetTypeInfo().Assembly.Location,
-                //typeof(System.Runtime).GetTypeInfo.Assembly.Location,
+                //typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.Location,
                 // add assembly path based .NETCore path
                 Path.Combine(runtimeDir, "System.Runtime.dll"),
                 // add my library file path
@@ -55,8 +55,7 @@ namespace Scripting
 
             // 4. create compiler with syntaxTreee, meta-refs, compile-options
             Debug.WriteLine("Compiling ...");
-            //string asmName = String.IsNullOrEmpty(fileName) ? Path.GetRandomFileName() : fileName;
-            string asmName = String.IsNullOrEmpty(fileName) ? "" : fileName;
+            string asmName = String.IsNullOrEmpty(fileName) ? Path.GetRandomFileName() : fileName;
             this.Compiler = CSharpCompilation.Create(
                 asmName,
                 syntaxTrees: new[] { syntaxTree },
@@ -100,6 +99,7 @@ namespace Scripting
 
             string filePath = Path.Combine(this.DllPath, fileName + ".dll");
             Debug.WriteLine($"Compilation emit path = {filePath}");
+
             EmitResult result = this.Compiler.Emit(filePath);
             if (!result.Success)
             {
@@ -135,30 +135,34 @@ namespace Scripting
             return null;
         }
 
-        public void RunScript(Assembly assembly, string className)
+        public void RunScript(Assembly assembly, string methodName)
         {
             // check assembly
             if (assembly == null)
                 return;
 
-            // list up class
-            foreach (Type t in assembly.GetTypes())
+            // list up class in assembly
+            Debug.WriteLine($"List up all classes in assembly {assembly.GetName()}");
+            //foreach (Type t in assembly.GetTypes())
+            foreach (Type t in assembly.GetExportedTypes())
             {
-                Debug.WriteLine(t.FullName);
+                Debug.WriteLine($"\t {t.FullName}");
             }
 
             // get class type in assembly
-            Debug.WriteLine($"Run assembly, className= {assembly.GetTypes().First().FullName}");
-            string qfyName = "FcpScripts." + className;
-            var type = assembly.GetType(qfyName);
+            //Debug.WriteLine($"Run assembly, className= {assembly.GetTypes().Last().FullName}");
+            //string qfyName = "FcpScripts." + className;
+            //Debug.WriteLine($"Run assembly, paramName= {qfyName}");
+            //var type = assembly.GetType(qfyName);
+            Type type = assembly.GetExportedTypes().First();
             if (type == null)
             {
                 return;
             }
 
             // get method info for invoking
-            string methodName = "Run";
-            var instance = assembly.CreateInstance(qfyName);
+            //var instance = assembly.CreateInstance(qfyName)
+            var instance = assembly.CreateInstance(type.FullName);
             var m = type.GetMember(methodName).First() as MethodInfo;
             if (m != null)
             {

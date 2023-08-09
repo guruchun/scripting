@@ -7,12 +7,19 @@ namespace FcpScripts
 
         public bool Run()
         {
-            MyAccess obj = new MyAccess();
-            int ret = obj.Power(3);
-            Debug.WriteLine($"called TestMethod(3)={ret}");
-            int val = obj.GetValue();
-            Debug.WriteLine($"called Get={val}");
-            obj.SetValue(77);
+            MyAccess myAccess = MyAccess.GetInstance();
+            Debug.WriteLine($"called Run");
+
+            // get
+            int a = myAccess.GetTag<int>("aaa");
+            double b = myAccess.GetTag<double>("bbb");
+            string? bstr = myAccess.GetTag<string>("bbb");
+            Debug.WriteLine($"direct get aaa= {a}, bbb={b}, bstr={bstr}");
+
+            // set
+            myAccess.SetTag("aaa", a + 1);
+            myAccess.SetTag<double>("bbb", b + 0.1D);
+
             return true;
         }
 

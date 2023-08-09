@@ -74,7 +74,7 @@ namespace Scripting
             if (assembly != null)
             {
                 // run method of class in assembly
-                Runner.RunScript(assembly, CodeName.Text);
+                Runner.RunScript(assembly, "Run");
                 //Scriptor.RunTestCase(assembly, className);
             }
         }
@@ -85,17 +85,30 @@ namespace Scripting
             Assembly? asm = Runner.Compile();
             if (asm != null)
             {
-                Runner.RunScript(asm, CodeName.Text);
+                Runner.RunScript(asm, "Run");
             }
         }
 
         // call directly for testing
         private void Test_Click(object sender, EventArgs e)
         {
-            TestLib.MyAccess myAccess = new TestLib.MyAccess();
-            int vGet = myAccess.GetValue();
-            Debug.WriteLine($"direct get = {vGet}");
-            myAccess.SetValue(vGet + 5);
+            TestLib.MyAccess myAccess = TestLib.MyAccess.GetInstance();
+            // test
+            myAccess.SetTag("ccc", "1234");     // set integer as string
+            myAccess.SetTag("ddd", "12.345");   // set double as string
+
+            // get
+            int a = myAccess.GetTag<int>("aaa");
+            double b = myAccess.GetTag<double>("bbb");
+            string? bstr = myAccess.GetTag<string>("bbb");
+            int c = myAccess.GetTag<int>("ccc");        // get string as integer
+            double d = myAccess.GetTag<double>("ddd");  // get string as double
+            Debug.WriteLine($"direct get aaa= {a}, bbb={b}, bstr={bstr}, ccc={c}, ddd={d}");
+
+            // set
+            myAccess.SetTag("aaa", a + 10);
+            myAccess.SetTag("bbb", b + 0.01D);
+            //myAccess.SetTag<double>("bbb", b + 0.01D);
         }
 
         private void Save_Click(object sender, EventArgs e)
