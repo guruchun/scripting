@@ -1,0 +1,8 @@
+1) 로그 파일을 열어서 엑셀로 저장한다.
+2) 헤더 아래에 3줄을 추가해서 New Tag, Select, Delta 행으로 입력한다.
+3) Select 행에 시험 데이터로 만들 컬럼을 1로 체크한다.
+4) 스크립트 RemoveUncheckedColumn를 수행해서 필요없는 데이터 컬럼을 삭제한다.
+5) 스크립트 SetNewTag 를 수행해서 New 행에 Gen2의 새로운 신호명이 입력되게 한다.
+6) Delta 행에 시험데이터의 의미있는 변화폭을 입력한다.
+7) 스크립트 Highlight를 수행해 시험데이터 대상을 표시한다.
+8) 스크립트 Generate를 수행해 Test Data를 생성한다.

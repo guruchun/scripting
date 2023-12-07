@@ -1,0 +1,94 @@
+[
+  {
+    "name": "SysChk-Step2-Pass",
+    "description": "WatHrsFlow, pressure of WatStkIn, mass of AirTgb are all OK",
+    "items": [
+      {"tag": "swtWatHrsFlow", "value": "1"},
+      {"tag": "pWatStkIn", "value": "21"},
+      {
+        "tag": "dmAirTgbFb",
+        "value": "35"
+      }
+    ]
+  },
+  {
+    "name": "SysChk-Step2-Fail",
+    "description": "WatHrsFlow is not 1",
+    "items": [
+      {
+        "tag": "swtWatHrsFlow",
+        "value": "0"
+      },
+      {
+        "tag": "pWatStkIn",
+        "value": "21"
+      },
+      {
+        "tag": "dmAirTgbFb",
+        "value": "35"
+      }
+    ]
+  },
+  {
+    "name": "SysChk-StepX-Pass",
+    "description": "WatTnkLow, WatBufLow are ON",
+    "items": [
+      {
+        "tag": "swtWatTnkLow",
+        "value": "1"
+      },
+      {
+        "tag": "swtWatBufLow",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "name": "SysChk-StepX-Fail",
+    "description": "WatTnkLow is not ON",
+    "items": [
+      {
+        "tag": "swtWatTnkLow",
+        "value": "0"
+      },
+      {
+        "tag": "swtWatBufLow",
+        "value": "1"
+      }
+    ]
+  },
+  {
+    "name": "ReadyNormal-PressReg-OFF",
+    "description": "tSrCatl is low temperature",
+    "items": [
+      {
+        "tag": "tSrCatl",
+        "value": "30"
+      }
+    ]
+  },
+  {
+    "name": "StartChk1-Part-Failure",
+    "description": "COMM error",
+    "items": [
+      {
+        "tag": "tagName",
+        "value": "tagValue"
+      }
+    ]
+  },
+
+
+
+
+  {
+    "name": "dataSetName",
+    "description": "dataSet for testing condition ~~~",
+    "items": [
+      {
+        "tag": "tagName",
+        "value": "tagValue"
+      }
+    ]
+  }
+]
